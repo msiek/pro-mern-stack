@@ -70,46 +70,41 @@ const issues = [
 
 class IssueList extends React.Component {
     constructor(){
-        super();
-        //Intializing the state
-        this.state = { issues: issues };
-        //After 2000 milliseconds the constructor is called this.createIssue will be called
-        //Had to include a bind(this) on the function instead of passing it as it
-        //if we don't do this the THIS variable will be set to the event that called the function
-        setTimeout(this.createTestIssue.bind(this), 2000);
+       super();
+       this.state = { issues: [] };
+
+       this.createTestIssue = this.createTestIssue.bind(this);
+       setTimeout(this.createTestIssue, 2000);
     }
 
-    createIssue(newIssue){
-        //Made a copy of the issues array in the state by calling slice() on it
-        const newIssues = this.state.issues.slice();
-        newIssue.id = this.state.issues.length + 1;
-        //Pushed the new issue to be created into the array
-        //Made a copy of the state value issues because you are not
-        //supposed to modify the state directly
-        newIssues.push(newIssue);
-        //Called this.setState with the new array thus modifying the state of the component
-        this.setState({ issues: newIssues });
+    componentDidMount(){
+        this.loadData();
     }
-
+    //Did not have to bind loadData to this because we used an arrow function
+    //which uses lexical this. Thus in the anonymous function that's passed to
+    //setTimeout, the This variable is initialized to the component instance.
+    loadData(){
+        setTimeout(() => {
+            this.setState({ issues: issues});
+        }, 500);
+    }
     createTestIssue(){
         this.createIssue({
             status: 'New', owner: 'Pieta', created: new Date(),
-            title: 'Completion date should be optional',
+            title: 'Completion data should be optional',
         });
     }
 
     render(){
-        return (
+        return(
             <div>
                 <h1>Issue Tracker</h1>
-                <IssueFilter />
-                <hr />
-                <!--  Passed the data contained in the state to the IssueTable Via properties
-                the initial rendering of the IssueTable component will not use this array as
-                its source data -->
-                <IssueTable issues={this.state.issues} />
-                <hr />
-                <IssueAdd />
+                <IssueFilter/>
+                <hr/>
+                <IssueTable issues={this.state.issues}/>
+                <button onClick={this.createTestIssue}>Add</button>
+                <hr/>
+                <IssueAdd/>
             </div>
         );
     }
