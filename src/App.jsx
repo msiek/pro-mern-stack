@@ -48,9 +48,34 @@ class IssueTable extends React.Component {
 }
 
 class IssueAdd extends React.Component {
-    render() {
-        return (
-            <div>This is a placeholder for an Issue Add entry form.</div>
+    constructor() {
+        super();
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleSubmit(e) {
+        e.preventDefault();
+        var form = document.forms.issueAdd;
+        this.props.createIssue({
+            owner: form.owner.value,
+            title: form.title.value,
+            status: 'New',
+            created: new Date(),
+        });
+        //clear the form for the next input
+        form.owner.value = "";
+        form.title.value = "";
+    }
+
+    render(){
+        return(
+            <div>
+                <form name="issueAdd" onSubmit={this.handleSubmit}>
+                    <input type="text" name="owner" placeholder="Owner" />
+                    <input type="text" name="title" placeholder="Title" />
+                    <button>Add</button>
+                </form>
+            </div>
         )
     }
 }
@@ -72,9 +97,7 @@ class IssueList extends React.Component {
     constructor(){
        super();
        this.state = { issues: [] };
-
-       this.createTestIssue = this.createTestIssue.bind(this);
-       setTimeout(this.createTestIssue, 2000);
+       this.createIssue = this.createIssue.bind(this);
     }
 
     componentDidMount(){
@@ -83,16 +106,17 @@ class IssueList extends React.Component {
     //Did not have to bind loadData to this because we used an arrow function
     //which uses lexical this. Thus in the anonymous function that's passed to
     //setTimeout, the This variable is initialized to the component instance.
-    loadData(){
+    loadData() {
         setTimeout(() => {
-            this.setState({ issues: issues});
+            this.setState({ issues: issues });
         }, 500);
     }
-    createTestIssue(){
-        this.createIssue({
-            status: 'New', owner: 'Pieta', created: new Date(),
-            title: 'Completion data should be optional',
-        });
+
+    createIssue(newIssue){
+        const newIssues = this.state.issues.slice();
+        newIssue.id = this.state.issues.length +1;
+        newIssues.push(newIssue);
+        this.setState({ issues: newIssues });
     }
 
     render(){
@@ -102,9 +126,8 @@ class IssueList extends React.Component {
                 <IssueFilter/>
                 <hr/>
                 <IssueTable issues={this.state.issues}/>
-                <button onClick={this.createTestIssue}>Add</button>
                 <hr/>
-                <IssueAdd/>
+                <IssueAdd createIssue={this.createIssue}/>
             </div>
         );
     }
